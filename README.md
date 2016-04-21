@@ -168,6 +168,8 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 		 boost::graph_traits<MyGraph>::vertex_descriptor x = *it; // неизвестный заранее ID вершины. Обычно - число
 		 cout << "В вершину "<<x<<" входит "<< boost::in_degree(x, g)<<" ребер"<<endl;
 	 }
+	```
+	
 9. Точно также можно перечислить рёбра:
 	```c++
 	boost::graph_traits<MyGraph>::edge_iterator it2, last2;
@@ -200,7 +202,7 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	 cout << endl;
 	```
 12. Переключите класс вновь на ``adjacency_list``. Ошибок компиляции не возникнет.
-	* для ориентированных графов ``boost::directedS`` на списках смежности функции ``in_edges`` и ``in_degree`` не доступны, их испльзование придётся закомментировать.
+	* для ориентированных графов ``boost::directedS`` на списках смежности функции ``in_edges`` и ``in_degree`` не доступны, их использование придётся закомментировать.
 13. Попробуйте сменить способ списков смежности на списочный:
 	```c++
 	typedef boost::adjacency_list<
@@ -240,7 +242,10 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	 
 	```
 	
-13. Освоим обобщение ассоциативных массивов PropertyMap в boost. Это набор классов для получения значения по ключу,
+	
+# Раскрасим и подпишем наши графы 
+
+1. Освоим обобщение ассоциативных массивов PropertyMap в boost. Это набор классов для получения значения по ключу,
 которые универсальным образом обращаются к разным контейнерам:
 	```c++
 	typedef boost::graph_traits<MyGraph>::vertex_descriptor vertex_type;
