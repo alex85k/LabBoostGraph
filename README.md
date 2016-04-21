@@ -6,7 +6,9 @@
 
 2. Распакованная библиотека Boost для Visual Studio (в примерах - ``d:\boost``)
 Для Boost Graph достаточно заголовочных файлов, компилировать .lib/.dll не требуется.
-https://sourceforge.net/projects/boost/files/boost/1.60.0/
+https://sourceforge.net/projects/boost/files/boost/1.59.0/
+:exclamation::exclamation:```осторожно, в boost 1.60 случайно сломана компиляция adjacency_matrix```:exclamation::exclamation:
+
 
 3. Пакет GraphViz для генерации изображений графов (распаковать архив в любую папку, в примеах - ``d:\users\graphviz``)
 
