@@ -282,4 +282,44 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	Просмотрите изображение!
 	
 3. Упражнение. Добавьте аналогично ``style=filled`` к каждой вершине.
+4. Упражнение. Раскрасьте три вершины в красный, жёлтый и зелёный цвета с помощью ``boost::vector_property_map<std::string>``.
+5. Удобно бывает внедрить свойства прямо **внутрь** вершин и рёбер, а не хранить их в отдельных PropertyMap-ах (это называется BundledProperties). Для этого нужно создать структуру с нужными полями и упомянуть её в шаблоне графа:
+	```c++
+	static std::string colors[] = { "red","green","yellow" };
+	struct VertInfo {
+	public:
+		std::string color = colors[(int)(3.0*rand()/RAND_MAX)]; // цвет вершины, случайно определяется при её создании
+	};
+	
+	struct EdgeInfo {
+	public:
+		int weight = rand() % 100; // вес ребра
+	};
+	
+	typedef boost::adjacency_list<
+		boost::listS, // как хранить ребра из каждой вершины - в векторе
+		boost::vecS, // как хранить сами вершины - в векторе
+		boost::undirectedS, // неориентированный граф
+		VertInfo, EdgeInfo
+	> MyGraph;
+	```
+6. Получить доступ к этим данным легко - ``boost::get(&VertInfo::color, g)`` возврашает объект для доступа к color вершин.
+Например, сохраним их в файл:
+	```c++
+	dp.property("color", boost::get(&VertInfo::color, g));
+	dp.property("label", boost::get(&EdgeInfo::weight, g)); 
+	```
+7. Потренируйтесь менять свойства вершин и рёбер разными способами:
+	```c++
+	 // способ 1 - через PropertyMap, ассоциированный с графом
+	 auto allColors = boost::get(&VertInfo::color, g);
+	 allColors[1] = "blue";
 
+	 // способ 2 - лёгкий. g[1] - это VertInfo&
+	 g[1].color = "brown";
+
+	 // способ 3 - итераторно-шаблонный (g[] сам разбирается на чьи свойства возвращает ссылку)
+	 // в квадратных скобках - дескриптор ребра, номеров у них нет
+	 g[*(boost::edges(g).first)].weight = 700;
+	 g[*(boost::out_edges(1,g).first)].weight = 500;
+	```
