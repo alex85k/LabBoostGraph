@@ -123,3 +123,19 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	system("D:/Soft/graphviz/bin/dot graph.dot -Kcirco -Tsvg -o graph.svg");
 	system("start graph.svg");
 	```
+6. Добавим свойства вершин, хранящиеся в дополнительных объектах:
+	```c++
+	// PropertyMap в boost - это классы для получения значения по ключу,
+	// которые универсальным образом обращаются к разным контейнерам
+
+	typedef boost::graph_traits<MyGraph>::vertex_descriptor vertex_type;
+	auto filledProp = boost::static_property_map<std::string, vertex_type>("filled");
+	// эта штука по любому ключу возвращает строку "filled"
+	cout <<"boost::static_property_map по любому ключу возвращает одно и то же: "<<
+		filledProp[1] << filledProp[763] << endl;
+
+	boost::vector_property_map<std::string> vmap; 
+	vmap[0] = "green";
+	vmap[3] = "red"; // ключи - номер элемента в запрятанном внутри std::vector
+	
+	```
