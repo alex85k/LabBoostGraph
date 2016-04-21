@@ -323,6 +323,4 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	 g[*(boost::edges(g).first)].weight = 700;
 	 g[*(boost::out_edges(1,g).first)].weight = 500;
 	```
-:smile:
-https://db.tt/tgldCvJS
 
