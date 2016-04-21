@@ -259,3 +259,27 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	vmap[3] = "red"; // ключи - номер элемента в запрятанном внутри std::vector
 	
 	```
+
+2. Такие ассоциативные массивы могут использовать все алгоритмы библиотеки Boost Graph. В частности, с их помощью можно сохранять .dot-файлы с дополнительными атрибутами - цвет, ширина, подписи рёбер и т.д.
+Пример: сохраним граф с зелёными вершинами и красными рёбрами:
+	```с++
+	auto vertColor = boost::static_property_map<std::string, MyGraph::vertex_descriptor>("green");
+	auto edgeColor = boost::static_property_map<std::string, MyGraph::edge_descriptor>("red");
+	auto nodeId = boost::get(boost::vertex_index, g);
+	// map с нумерацией вершин  (дескриптор->номер)
+	// если нумерация уже есть (вершины в векторе), то ключи=значениям
+
+	boost::dynamic_properties dp;
+	dp.property("color", vertColor);
+	dp.property("color", edgeColor); // сам разберётся, какой цвет к чему относится
+	dp.property("node_id", nodeId);
+	 
+	std::ofstream f("graph.dot");
+	boost::write_graphviz_dp(cout, g, dp);
+	boost::write_graphviz_dp(f, g, dp);
+	f.close();
+	```
+	Просмотрите изображение!
+	
+3. Упражнение. Добавьте аналогично ``style=filled`` к каждой вершине.
+
