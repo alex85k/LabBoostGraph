@@ -64,6 +64,9 @@ https://raw.githubusercontent.com/github/gitignore/master/VisualStudio.gitignore
 
 # Осваиваем Boost Graph Library (BGL)
 
+http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/quick_tour.html
+http://programmingexamples.net/wiki/Boost/BGL
+
 1. Объявим тип данных для нашего графа:
 	```c++
 	typedef boost::adjacency_list < 
@@ -147,7 +150,8 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	- выделите сразу при создании графа достаточное количество вершин
 8. Обратимся к вершинам универсальным способом:
 	```c++
-	 auto vs = boost::vertices(g); // возвращает ПАРУ итераторов - начало и конец условного списка вершин 
+	 auto vs = boost::vertices(g); 
+	 // возвращает ПАРУ итераторов - начало и конец условного списка вершин 
 	 MyGraph::vertex_iterator start = vs.first, end = vs.second; // MyGraph::vertex_iterator - тип вершинного итератора
 	 for (MyGraph::vertex_iterator it = start; it != end; it++) { // двигаемся от начала к концу
 		 cout << "Из вершины "<<*it<<" выходит "<< boost::out_degree(*it, g)<<" ребер"<<endl;
@@ -155,13 +159,89 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 		 //  boost::out_degree сам разберётся, какого типа граф g c помощью шаблонов
 	 }
 	```
-
-
-7. Добавим свойства вершин, хранящиеся в дополнительных объектах:
+	Вместо ``MyGraph::vertex_iterator`` чуть универсальнее использовать ``boost::graph_traits<MyGraph>::vertex_iterator``.
+	Альтернативный способ сделать цикл по вершинам:
 	```c++
-	// PropertyMap в boost - это классы для получения значения по ключу,
-	// которые универсальным образом обращаются к разным контейнерам
+	boost::graph_traits<MyGraph>::vertex_iterator it, last;
+	 for (std::tie(it, last) = boost::vertices(g); it != last; it++) {
+	 	 // std::tie - объект позволяющий быстро привоить двev переменным пару значений
+		 boost::graph_traits<MyGraph>::vertex_descriptor x = *it; // неизвестный заранее ID вершины. Обычно - число
+		 cout << "В вершину "<<x<<" входит "<< boost::in_degree(x, g)<<" ребер"<<endl;
+	 }
+9. Точно также можно перечислить рёбра:
+	```c++
+	boost::graph_traits<MyGraph>::edge_iterator it2, last2;
+	for (std::tie(it2, last2) = boost::edges(g); it2 != last2; it2++) {
+		 cout << "Ребро " <<*it2<<", "<< it2->m_source <<" -> "<< it2->m_target<<endl;
+	}
+	```
+	Самый короткий способ - использовать STL (итераторы boost вполне совместимы с ``std::copy``, ``std::find``, ``std::for_each``, ...):
+	```c++
+	auto es = boost::edges(g);
+	std::for_each(es.first, es.second, [&](auto &x) {  // [&] делает доступной переменную g
+		 cout << boost::source(x, g)<<","<<boost::target(x,g)<<endl;
+	});
+	```
+	``boost::source(x, g)`` - более универсальный способ узнать, откуда идёт ребро (возвращает дескриптор вершины)
+	
+10. Упражнение: замените оба auto на настоящие типы  (пару итераторов и дескриптор ребра).
 
+	
+11. Можно удобно просматривать соседей вершины и выходящиие из неё рёбра (для обоих типов графов):
+	```c++
+	auto es0 = boost::out_edges(0,g); 
+	 cout << "Из вершины 0 выходят ребра ";
+	 std::for_each(es0.first, es0.second, [&](auto &x) {cout << x << " "; });
+	 cout << endl;
+
+	 auto avs = boost::adjacent_vertices(0, g);
+	 cout << "Из вершины 0 выходят ребра в вершины ";
+	 std::for_each(avs.first, avs.second, [&](boost::graph_traits<MyGraph>::vertex_descriptor x) {cout << x << " "; });
+	 cout << endl;
+	```
+12. Переключите класс вновь на ``adjacency_list``. Ошибок компиляции не возникнет.
+	* для ориентированных графов ``boost::directedS`` на списках смежности функции ``in_edges`` и ``in_degree`` не доступны, их испльзование придётся закомментировать.
+13. Попробуйте сменить способ списков смежности на списочный:
+	```c++
+	typedef boost::adjacency_list<
+		boost::listS, // хранить ребра из каждой вершины в связном списке
+		boost::vecS, // как хранить сами вершины - в векторе
+		boost::undirectedS // неориентированный граф
+	> MyGraph;
+	```
+	Теперь рёбра можно удалять без опасения замедлить работу (при удалении рёбер из вектора все последующие сдвигаются).
+14.	Попробуем удалить вершины и рёбра:
+	```c++
+	boost::remove_edge(1, 3, g); // для связных списков смежности может быть долго (O(степени вершины))
+	 
+	boost::remove_edge(*boost::edges(g).first, g); 
+	// а через дескриптор ребра быстро. Правда, нужно разбираться с итераторами
+
+	boost::remove_vertex(1,g); // проверьте, перенумеруются ли вершины?
+	```
+	
+15.	Если сделать ```typedef boost::adjacency_list<boost::listS, boost::listS ...``` (хранить вершины не в векторе), получим множество ошибок компиляции, так как доступ по номеру теперь не доступен (только получение дескрипторов через итераторы, тольо хардкор) 
+	```c++
+	typedef boost::adjacency_list<
+		 boost::vecS, // как хранить ребра из каждой вершины - в векторе
+		 boost::listS, // как хранить сами вершины - в векторе
+		 boost::undirectedS // неориентированный граф
+	 > MyGraph2;
+	 MyGraph2 g2;
+	 auto v0 = boost::add_vertex(g2);
+	 auto v1 = boost::add_vertex(g2);
+	 boost::add_vertex(g2);
+	 auto e0 = boost::add_edge(v0,v1,g2);
+	 boost::add_edge(*(--boost::vertices(g2).second), *(boost::vertices(g2).first), g2);
+	 // что бы это значило? какие вершины соединяются?
+	 
+	 //boost::write_graphviz(cout, g2); // сохранить этот граф не так просто
+	 
+	```
+	
+13. Освоим обобщение ассоциативных массивов PropertyMap в boost. Это набор классов для получения значения по ключу,
+которые универсальным образом обращаются к разным контейнерам:
+	```c++
 	typedef boost::graph_traits<MyGraph>::vertex_descriptor vertex_type;
 	auto filledProp = boost::static_property_map<std::string, vertex_type>("filled");
 	// эта штука по любому ключу возвращает строку "filled"
