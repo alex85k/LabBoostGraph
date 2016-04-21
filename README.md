@@ -52,7 +52,7 @@ https://sourceforge.net/projects/boost/files/boost/1.60.0/
 	 return 0;
 	}
 	```
-5. Запустите ``make_project.bat`` и убедитесь в отсустствии ошибок. После этого откройте ``LabGraph.sln`` в папке ``build``, сделайте ``sample`` основным проектом и 
+5. Запустите ``make_project.bat`` и убедитесь в отсустствии ошибок. После этого откройте ``LabGraph.sln`` в папке ``build``, сделайте ``sample`` основным проектом (в контекстном меню проекта) и 
 убедитесь, что он запускается.
 6. Сохраните файл 
 https://raw.githubusercontent.com/github/gitignore/master/VisualStudio.gitignore
@@ -120,9 +120,10 @@ http://www.boost.org/doc/libs/1_60_0/libs/graph/doc/using_adjacency_list.html
 	std::ofstream f("graph.dot");
 	boost::write_graphviz(f, g);
 	f.close();
-	system("D:/Soft/graphviz/bin/dot graph.dot -Kcirco -Tsvg -o graph.svg");
+	system("D:/Soft/graphviz/bin/dot.exe graph.dot -Kcirco -Tsvg -o graph.svg");
 	system("start graph.svg");
 	```
+	Не забудьте поменять путь к ``dot.exe`` на актуальный для вашей установки.
 6. Добавим свойства вершин, хранящиеся в дополнительных объектах:
 	```c++
 	// PropertyMap в boost - это классы для получения значения по ключу,
